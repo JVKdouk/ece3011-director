@@ -66,6 +66,10 @@ export function set_state(state: keyof typeof SERVER_STATE) {
       console.log('[SERVER] Starting Presentation...');
       start_presentation();
       break;
+
+    case 'WAITING_CONNECTIONS':
+      io.sockets.emit('message', 'PRESENTATION_COMPLETE');
+      break;
   }
 }
 

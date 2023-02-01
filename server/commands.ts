@@ -12,17 +12,13 @@ function cli_command_parser(text: string) {
     case 'start':
       set_state('RUNNING_PRESENTATION');
       break;
-
-    case 'stop':
-      console.log('[SERVER] Stopping Presentation...');
-      break;
   }
 }
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-  terminal: false,
-});
-
-rl.on('line', cli_command_parser);
+readline
+  .createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: false,
+  })
+  .on('line', cli_command_parser);
