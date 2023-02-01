@@ -15,7 +15,7 @@ The server will wait for new robots to join the network. To start the presentati
 | Command                     | Description                                                                                                                                                                                          |
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | IDENTIFIED                  | Emitted after the initial connection. Tells the robot its robot_id was validated. This is only the moment you can assume the connection has been established. No more actions are required from you. |
-| LINE:<actual line or index> | Emitted once it is your turn to speak. You must respond with a LINE_COMPLETE message event once you are done                                                                                         |
+| LINE:"actual line or index" | Emitted once it is your turn to speak. You must respond with a LINE_COMPLETE message event once you are done                                                                                         |
 | PRESENTATION_COMPLETE       | Emitted once the presentation is complete. You can act upon it, or just ignore.                                                                                                                      |
 
 ## Client to Server Commands
