@@ -69,7 +69,7 @@ function wait_robot(robot_id: string, message: string, wait = 0) {
       }
     };
 
-    event_emitter.on('LINE_COMPLETE', check_robot);
+    event_emitter.on(message, check_robot);
   });
 }
 

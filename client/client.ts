@@ -5,7 +5,7 @@ import readline from 'readline';
 // Initial Setup
 const HOST = 'localhost:3333'; // Server Address
 const PROTOCOL = 'ws://'; // Use Web Socket Protocol
-const ROBOT_ID = 2; // Robot ID can be a number or a string, it does not matter
+const ROBOT_ID = 'Angel'; // Robot ID can be a number or a string, it does not matter
 
 let status: keyof typeof CLIENT_STATE = 'PENDING_CONNECTION';
 const socket = io(`${PROTOCOL}${HOST}`, { query: { robot_id: ROBOT_ID } });

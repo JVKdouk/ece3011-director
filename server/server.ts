@@ -58,9 +58,16 @@ function handle_connection(socket: Socket) {
 
   socket.on('message', (message) => handle_message(message, robot_id, socket));
 
-  socket.on('disconnect', () =>
-    console.log(`[SERVER] ${socket.id} disconnected...\n`)
-  );
+  socket.on('disconnect', () => {
+    // Remove the robot from the connection list
+    const index = connection_list.findIndex(
+      (conn) => conn.socket.id === socket.id
+    );
+
+    if (index > -1) connection_list.splice(index, 1);
+
+    console.log(`[SERVER] ${socket.id} disconnected...\n`);
+  });
 }
 
 /**
