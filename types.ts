@@ -14,3 +14,14 @@ export interface IScriptLine {
   robot_id: string;
   message: string;
 }
+
+export enum ServerCommands {
+  IDENTIFIED,
+  LINE,
+  PRESENTATION_COMPLETE,
+  FAILED,
+}
+
+export enum ClientCommands {
+  LINE_COMPLETE,
+}

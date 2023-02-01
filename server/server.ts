@@ -40,6 +40,15 @@ function handle_connection(socket: Socket) {
     return;
   }
 
+  const is_duplicate =
+    connection_list.findIndex((entry) => entry.id === robot_id) > -1;
+
+  if (is_duplicate) {
+    socket.emit('message', 'FAILED:Already registered');
+    console.log('[SERVER] Failure: Duplicate robot_id');
+    return;
+  }
+
   console.log('[SERVER] Identified as', robot_id);
   socket.emit('message', 'IDENTIFIED');
 

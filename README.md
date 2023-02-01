@@ -10,6 +10,8 @@ On your first connection to the server, you must use the web socket protocol (`w
 
 The server will wait for new robots to join the network. To start the presentation, type `start` in the console, and then press enter. The server will then read each line from the script and emit it to the correct robot (identified by the `robot_id`). As soon as your line comes, you will receive a `message` event from the server, with the payload as `LINE:<actual line or index>`. Once completed, you must send a `message` event to the server with `LINE_COMPLETE` as the payload. This will allow the server to move on to the next line in the script. If you take more than a fixed amount of time (to be defined by the instructors), the server will skip you and move on to the next robot in line.
 
+If a given robot is not connected to the network prior to the start of the presentation, it will not be able to join and its lines will be entirely skipped.
+
 ## Server to Client Commands
 
 | Command                     | Description                                                                                                                                                                                          |
@@ -17,6 +19,7 @@ The server will wait for new robots to join the network. To start the presentati
 | IDENTIFIED                  | Emitted after the initial connection. Tells the robot its robot_id was validated. This is only the moment you can assume the connection has been established. No more actions are required from you. |
 | LINE:"actual line or index" | Emitted once it is your turn to speak. You must respond with a LINE_COMPLETE message event once you are done                                                                                         |
 | PRESENTATION_COMPLETE       | Emitted once the presentation is complete. You can act upon it, or just ignore.                                                                                                                      |
+| FAILED:"reason"             | Emitted if your connection/identification fails for some reason. Reason is provided as data                                                                                                          |
 
 ## Client to Server Commands
 

@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { CLIENT_STATE } from '../types';
+import { CLIENT_STATE, ServerCommands } from '../types';
 import readline from 'readline';
 
 // Initial Setup
@@ -18,7 +18,7 @@ const socket = io(`${PROTOCOL}${HOST}`, { query: { robot_id: ROBOT_ID } });
  */
 function command_parser(text: string) {
   const payload = text.split(':');
-  const command = payload[0];
+  const command = payload[0] as keyof typeof ServerCommands;
   const data = payload[1];
 
   switch (command) {
@@ -40,6 +40,13 @@ function command_parser(text: string) {
     // You can react to this status or just ignore it.
     case 'PRESENTATION_COMPLETE':
       console.log('[CLIENT] Presentation is Complete');
+      break;
+
+    // During the presentation, if the server requires a given line to be read by the robot,
+    // it will send the LINE command, followed by the message as data. If you use local storage
+    // scripts, you will receive an index of your choice to that script.
+    case 'FAILED':
+      console.log('[CLIENT] Connection Failed:', data);
       break;
   }
 }
