@@ -15,6 +15,25 @@ function cli_command_parser(text: string) {
   }
 }
 
+function cli_arg_parser() {
+  const args = process.argv.splice(2);
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+
+    switch (arg) {
+      case '-m':
+        const mode = args[i + 1];
+        if (mode === 'echo') set_state('ECHOING');
+        i += 1;
+
+        continue;
+    }
+  }
+
+  console.log(args);
+}
+
 readline
   .createInterface({
     input: process.stdin,
@@ -22,3 +41,5 @@ readline
     terminal: false,
   })
   .on('line', cli_command_parser);
+
+export default cli_arg_parser;

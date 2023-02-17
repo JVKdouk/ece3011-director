@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { CLIENT_STATE, ServerCommands } from '../types';
+import { CLIENT_STATE } from '../types';
 import readline from 'readline';
 
 // Initial Setup
@@ -16,17 +16,28 @@ const socket = io(`${PROTOCOL}${HOST}`, { query: { robot_id: ROBOT_ID } });
  * robot independently.
  * @param text Server payload to be processed
  */
-function command_parser(text: string) {
-  const payload = text.split(':');
-  const command = payload[0] as keyof typeof ServerCommands;
-  const data = payload[1];
+function command_parser(payload: { cmd: string; data: any }) {
+  const command = payload.cmd;
+  const data = payload.data;
 
   switch (command) {
+    // If the server is running in echo mode, all messages sent to it will be responded with
+    // an Echo of that same message. This is used to know the communication with the server is
+    // working as expected.
+    case 'ECHO':
+      console.log('[CLIENT] Got echo from server', data);
+      break;
+
     // Once the connection is established, the server will check for the robot id. If the
     // is correctly identified, the server send an "IDENTIFIED" message.
     case 'IDENTIFIED':
       console.log('[CLIENT] Identified Successfuly');
       status = 'CONNECTED';
+      break;
+
+    // If server is in echo mode, all lines will be returned on connection.
+    case 'LINES':
+      console.log('[CLIENT] Got Lines', data);
       break;
 
     // During the presentation, if the server requires a given line to be read by the robot,

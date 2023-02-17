@@ -14,14 +14,20 @@ If a given robot is not connected to the network prior to the start of the prese
 
 ## Server to Client Commands
 
-| Command                     | Description                                                                                                                                                                                          |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| IDENTIFIED                  | Emitted after the initial connection. Tells the robot its robot_id was validated. This is only the moment you can assume the connection has been established. No more actions are required from you. |
-| LINE:"actual line or index" | Emitted once it is your turn to speak. You must respond with a LINE_COMPLETE message event once you are done                                                                                         |
-| PRESENTATION_COMPLETE       | Emitted once the presentation is complete. You can act upon it, or just ignore.                                                                                                                      |
-| FAILED:"reason"             | Emitted if your connection/identification fails for some reason. Reason is provided as data                                                                                                          |
+Every command sent from the server to a client is formatted as a JSON, following the structure { cmd: "Command", data: "Message" }. All commands that can be issued by the server are explained in the table below:
+
+| Command               | Description                                                                                                                                                                                          |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| IDENTIFIED            | Emitted after the initial connection. Tells the robot its robot_id was validated. This is only the moment you can assume the connection has been established. No more actions are required from you. |
+| LINE                  | Emitted once it is your turn to speak. You must respond with a LINE_COMPLETE message event once you are done.                                                                                        |
+| ECHO                  | If the server is running in Echo mode, it you just echo back all command issue from a client.                                                                                                        |
+| LINES                 | If the server is running in Echo mode, then all lines are sent after the initial connection.                                                                                                         |
+| PRESENTATION_COMPLETE | Emitted once the presentation is complete. You can act upon it, or just ignore.                                                                                                                      |
+| FAILED                | Emitted if your connection/identification fails for some reason. Reason is provided as data.                                                                                                         |
 
 ## Client to Server Commands
+
+All commands from client to server are composed simply of the command, no formatting needed. Commands are explained below:
 
 | Command       | Description                                                                                                                                        |
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -35,8 +41,10 @@ To change the port the server is running on, edit `server/server.ts` PORT variab
 
 It is important to notice that the server **DOES NOT** start when all robots are connected. This is a design choice to allow for fine-grained control of the server behavior.
 
+The server can be run in echo mode with the `-m echo` argument. Whenever a connection happens in this mode, the server replies to the robot will all of its lines as an array (LINES command followed by all lines in the data property). If you issue a command to the server, it will simply echo the command back to you via the "ECHO" command.
+
 ## Running the Client
 
-Running the client involves the same procedure as above. The client is a simple demonstration of the director. You can use it as a basis for the design of your solution. Once you get a line, using the client, use the `complete` command to send the `LINE_COMPLETE` message event. In your design, your robot should emit this command once your work is complete.
+Running the client involves the same procedure as above. The client is a simple demonstration of the director. You can use it as a basis for the design of your solution. Once you get a line, using the client, use the `complete` cli command to send the `LINE_COMPLETE` message event. In your design, your robot should emit this command once work is complete.
 
 To change the local server address, update the HOST variable in `client/client.ts`. To change the robot_id, edit ROBOT_ID variable in `client/client.ts`.
