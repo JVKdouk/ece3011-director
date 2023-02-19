@@ -1,7 +1,7 @@
 import net from 'net';
 import { Socket } from '../types';
 import { presentation_lines } from './presentation';
-import { handle_message, server_state } from './server';
+import { event_emitter, server_state } from './server';
 import { v4 as uuid } from 'uuid';
 
 export const connection_list: { socket: Socket; robot_id: string | null }[] =
@@ -95,6 +95,29 @@ function handle_connection(socket: Socket) {
       console.log('[SERVER] Invalid message from', socket.id);
     }
   });
+}
+
+/**
+ * Every message from a robot pass through this function. A new message creates
+ * a system-wide event that the right listener will react to.
+ * @param message Message that was received
+ * @param robot_id Id of the robot that sent the message
+ * @param socket Socket from which the message came from
+ */
+export function handle_message(
+  message: Record<string, unknown>,
+  socket: Socket
+) {
+  if (message.cmd === 'IDENTIFY') {
+    return identify_robot(socket, message.data as string);
+  }
+
+  if (server_state === 'ECHOING') {
+    return socket.write(JSON.stringify({ cmd: 'ECHO', data: message }));
+  }
+
+  const robot_id = get_robot_id(socket);
+  event_emitter.emit(message.cmd as string, message.data, robot_id, socket);
 }
 
 export default handle_connection;
