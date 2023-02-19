@@ -27,11 +27,12 @@ Every command sent from the server to a client is formatted as a JSON, following
 
 ## Client to Server Commands
 
-All commands from client to server are composed simply of the command, no formatting needed. Commands are explained below:
+All commands from client to server are composed of a JSON string, following the same format as the server. Clients should send the JSON object as { cmd: "<command>", data: "<data>" }. It is acceptable to send no data. Below there is a list of commands that the client can send:
 
-| Command       | Description                                                                                                                                        |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| LINE_COMPLETE | Instructs the server to move on to the next line, since you are finished with yours. This will cause the server to move to the next robot in line. |
+| Command       | Description                                                                                                                                                                       |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| IDENTIFY      | Performs the identification procedure on the server. Data must be the name of the robot, as defined in the CSV. Should be the first data exchanged after connection is successful |
+| LINE_COMPLETE | Instructs the server to move on to the next line, since you are finished with yours. This will cause the server to move to the next robot in line.                                |
 
 ## Running the Server
 
@@ -45,6 +46,4 @@ The server can be run in echo mode with the `-m echo` argument. Whenever a conne
 
 ## Running the Client
 
-Running the client involves the same procedure as above. The client is a simple demonstration of the director. You can use it as a basis for the design of your solution. Once you get a line, using the client, use the `complete` cli command to send the `LINE_COMPLETE` message event. In your design, your robot should emit this command once work is complete.
-
-To change the local server address, update the HOST variable in `client/client.ts`. To change the robot_id, edit ROBOT_ID variable in `client/client.ts`.
+To run the client, you must have Python 3 installed locally, since the client is a Python script. By simply running `yarn client` or `python3 client/client.py`, the client will spin up.
