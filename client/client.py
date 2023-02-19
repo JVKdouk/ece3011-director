@@ -9,7 +9,7 @@ DIRECTOR_PORT = 3333
 CONNECTION_RETRY = 5          # Number of Tries before failrue
 CONNECTION_RETRY_DELAY = 5000 # Milliseconds
 STATUS = 'CONNECTING'         # System Status (CONNECTING, CONNECTED, RUNNING, FAILED)
-ROBOT_ID = 'Cat'
+ROBOT_ID = 'Janet Benson'
 
 # Global Variables
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # TCP + IPv4
@@ -82,7 +82,6 @@ def perform(line):
   print("[CLIENT] Got a line:", line)
   time.sleep(5)
   s.send(encode_json({ "cmd": "LINE_COMPLETE" }))
-  print("[CLIENT] Sent line complete")
 
 def encode_json(obj):
   return json.dumps(obj, separators=(',', ':')).encode()
