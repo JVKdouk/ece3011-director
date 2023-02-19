@@ -1,4 +1,5 @@
 import readline from 'readline';
+import { connection_list } from './connection';
 import { set_state } from './server';
 
 /**
@@ -9,8 +10,18 @@ import { set_state } from './server';
  */
 function cli_command_parser(text: string) {
   switch (text) {
+    // Start presentation
     case 'start':
       set_state('RUNNING_PRESENTATION');
+      break;
+
+    // List all current connections
+    case 'list':
+      const list = connection_list.map(
+        (conn) => conn.robot_id || conn.socket.id
+      );
+
+      console.log(list);
       break;
   }
 }

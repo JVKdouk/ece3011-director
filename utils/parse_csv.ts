@@ -8,11 +8,11 @@ import fs from 'fs';
 function parse_csv<T>(path: string) {
   const csv = fs.readFileSync(path).toString();
   const csv_lines = csv.split('\n');
-  const header_fields = csv_lines[0].split(',');
+  const header_fields = csv_lines[0].split(';');
 
   const lines = csv_lines.slice(1).map((entry) => {
     const line: Partial<Record<keyof T, string>> = {};
-    const csv_row = entry.split(',');
+    const csv_row = entry.split(';');
 
     for (let i = 0; i < header_fields.length; i++) {
       const field = header_fields[i] as keyof T;

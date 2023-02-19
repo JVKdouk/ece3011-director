@@ -9,7 +9,7 @@ DIRECTOR_PORT = 3333
 CONNECTION_RETRY = 5          # Number of Tries before failrue
 CONNECTION_RETRY_DELAY = 5000 # Milliseconds
 STATUS = 'CONNECTING'         # System Status (CONNECTING, CONNECTED, RUNNING, FAILED)
-ROBOT_ID = 'Charlie'
+ROBOT_ID = 'Cat'
 
 # Global Variables
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # TCP + IPv4
@@ -44,7 +44,7 @@ def connect(host, port):
     return
   
   # Identification was unsuccessful
-  print("[CLIENT] Connection failed")
+  print("[CLIENT] Connection failed:", callback['data'])
   STATUS = 'FAILED'
 
 # Central message decoder. Decodes the JSON message and performs actions

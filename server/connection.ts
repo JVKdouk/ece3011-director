@@ -16,6 +16,12 @@ function fail(socket: Socket, message: string) {
 export function identify_robot(socket: Socket, robot_id: string) {
   if (!robot_id) return fail(socket, 'Identification not provided');
 
+  // Check for duplicates in the connection list
+  const is_duplicate =
+    connection_list.findIndex((entry) => entry.robot_id === robot_id) > -1;
+  if (is_duplicate) return fail(socket, 'Duplicate Identification');
+
+  // If it is not a duplicate, proceed with identification
   const conn_index = connection_list.findIndex(
     (entry) => entry.socket.id === socket.id
   );
@@ -56,14 +62,7 @@ function handle_echo(socket: Socket, robot_id: string) {
   socket.write(JSON.stringify({ cmd: 'LINES', data: lines }));
 }
 
-export function get_robot_id(socket: Socket) {
-  const robot_id =
-    connection_list.find((entry) => socket.id === entry.socket.id)?.robot_id ||
-    null;
-
-  return robot_id;
-}
-
+// Send message to all connected listeners
 export function broadcast(message: string) {
   for (let i = 0; i < connection_list.length; i++) {
     connection_list[i].socket.write(message);
@@ -112,11 +111,10 @@ export function handle_message(
     return identify_robot(socket, message.data as string);
   }
 
-  if (server_state === 'ECHOING') {
-    return socket.write(JSON.stringify({ cmd: 'ECHO', data: message }));
-  }
+  const robot_id =
+    connection_list.find((entry) => socket.id === entry.socket.id)?.robot_id ||
+    null;
 
-  const robot_id = get_robot_id(socket);
   event_emitter.emit(message.cmd as string, message.data, robot_id, socket);
 }
 
