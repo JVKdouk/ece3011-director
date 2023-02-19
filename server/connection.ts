@@ -1,28 +1,33 @@
-import { Socket } from 'socket.io';
+import net from 'net';
+import { Socket } from '../types';
 import { presentation_lines } from './presentation';
 import { handle_message, server_state } from './server';
+import { v4 as uuid } from 'uuid';
 
-export const connection_list: { socket: Socket; robot_id: string }[] = [];
+export const connection_list: { socket: Socket; robot_id: string | null }[] =
+  [];
 
 function fail(socket: Socket, message: string) {
-  socket.emit('message', { cmd: 'FAILED', data: message });
+  socket.write(JSON.stringify({ cmd: 'FAILED', data: message }));
   console.log(`[SERVER] Failed: ${message}`);
 }
 
 // Robot identification procedure
-function identify_robot(socket: Socket) {
-  const robot_id = socket.handshake.query.robot_id as string;
+export function identify_robot(socket: Socket, robot_id: string) {
   if (!robot_id) return fail(socket, 'Identification not provided');
 
-  const is_duplicate =
-    connection_list.findIndex((entry) => entry.robot_id === robot_id) > -1;
-  if (is_duplicate) return fail(socket, 'Already registered');
+  const conn_index = connection_list.findIndex(
+    (entry) => entry.socket.id === socket.id
+  );
 
-  // Store connection
-  connection_list.push({ socket, robot_id });
+  if (conn_index === -1) return fail(socket, 'Not connected');
+  connection_list[conn_index].robot_id = robot_id;
 
-  // Acknowledge Connection
-  socket.emit('message', { cmd: 'IDENTIFIED', data: null });
+  // Perform Acknowledgement
+  socket.write(JSON.stringify({ cmd: 'IDENTIFY', data: true }));
+  console.log('[SERVER]', socket.id, 'identified as', robot_id);
+
+  if (server_state === 'ECHOING') handle_echo(socket, robot_id);
 
   return robot_id;
 }
@@ -42,13 +47,27 @@ function handle_disconnect(socket: Socket) {
 
 // Echo all lines back to the robot on connect
 function handle_echo(socket: Socket, robot_id: string) {
-  console.log('[SERVER] Sending Lines');
+  console.log('[SERVER] Sending lines to', robot_id);
 
   const lines = presentation_lines
     .filter((entry) => entry.robot_id === robot_id)
     .map((line) => line.message);
 
-  socket.emit('message', { cmd: 'LINES', data: lines });
+  socket.write(JSON.stringify({ cmd: 'LINES', data: lines }));
+}
+
+export function get_robot_id(socket: Socket) {
+  const robot_id =
+    connection_list.find((entry) => socket.id === entry.socket.id)?.robot_id ||
+    null;
+
+  return robot_id;
+}
+
+export function broadcast(message: string) {
+  for (let i = 0; i < connection_list.length; i++) {
+    connection_list[i].socket.write(message);
+  }
 }
 
 /**
@@ -60,18 +79,22 @@ function handle_connection(socket: Socket) {
   if (server_state === 'RUNNING_PRESENTATION')
     return fail(socket, 'Not accepting new connections');
 
-  console.log('[SERVER] Connection request from', socket.handshake.address);
+  socket.id = uuid();
+  console.log('[SERVER] Connection from', socket.remoteAddress);
 
-  const robot_id = identify_robot(socket);
-  if (!robot_id) return;
-
-  console.log('[SERVER] Identified as', robot_id);
-
-  if (server_state === 'ECHOING') handle_echo(socket, robot_id);
+  // Store connection
+  connection_list.push({ socket, robot_id: null });
 
   // Attach listeners
-  socket.on('message', (message) => handle_message(message, robot_id, socket));
-  socket.on('disconnect', () => handle_disconnect(socket));
+  socket.on('close', () => handle_disconnect(socket));
+  socket.on('error', () => handle_disconnect(socket));
+  socket.on('data', (message) => {
+    try {
+      handle_message(JSON.parse(message.toString()), socket);
+    } catch (e) {
+      console.log('[SERVER] Invalid message from', socket.id);
+    }
+  });
 }
 
 export default handle_connection;

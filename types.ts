@@ -1,3 +1,5 @@
+import net from 'net';
+
 export enum SERVER_STATE {
   RUNNING_PRESENTATION,
   WAITING_CONNECTIONS,
@@ -25,4 +27,8 @@ export enum ServerCommands {
 
 export enum ClientCommands {
   LINE_COMPLETE,
+}
+
+export class Socket extends net.Socket {
+  id?: string;
 }

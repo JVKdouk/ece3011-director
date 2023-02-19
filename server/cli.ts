@@ -30,8 +30,6 @@ function cli_arg_parser() {
         continue;
     }
   }
-
-  console.log(args);
 }
 
 readline

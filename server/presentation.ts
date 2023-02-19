@@ -22,7 +22,7 @@ export async function start_presentation() {
 
     // Fetch robot for that given line
     const connection = connection_list.find(
-      (conn) => conn.id === line.robot_id
+      (conn) => conn.robot_id === line.robot_id
     );
 
     if (!connection) {
@@ -31,7 +31,9 @@ export async function start_presentation() {
     }
 
     // Send line to robot
-    connection.socket.emit('message', { cmd: 'LINE', data: line.message });
+    connection.socket.write(
+      JSON.stringify({ cmd: 'LINE', data: line.message })
+    );
 
     // Wait until robot completes their line
     await wait_robot(

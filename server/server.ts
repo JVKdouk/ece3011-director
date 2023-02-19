@@ -1,17 +1,17 @@
-import { Server, Socket } from 'socket.io';
-import { SERVER_STATE } from '../types';
+import net from 'net';
+import { SERVER_STATE, Socket } from '../types';
 import { start_presentation } from './presentation';
-import express from 'express';
-import http from 'http';
 import events from 'events';
-import handle_connection from './connection';
+import handle_connection, {
+  broadcast,
+  get_robot_id,
+  identify_robot,
+} from './connection';
 import cli_arg_parser from './cli';
 
 const PORT = 3333;
 
-export const app = express();
-export const server = http.createServer(app);
-export const io = new Server(server);
+export const server = net.createServer();
 export const event_emitter = new events.EventEmitter();
 
 export let server_state: keyof typeof SERVER_STATE = 'WAITING_CONNECTIONS';
@@ -30,7 +30,12 @@ export function set_state(state: keyof typeof SERVER_STATE) {
       break;
 
     case 'WAITING_CONNECTIONS':
-      io.sockets.emit('message', { cmd: 'PRESENTATION_COMPLETE', data: null });
+      broadcast(
+        JSON.stringify({
+          cmd: 'PRESENTATION_COMPLETE',
+          data: null,
+        })
+      );
       break;
   }
 }
@@ -43,18 +48,24 @@ export function set_state(state: keyof typeof SERVER_STATE) {
  * @param socket Socket from which the message came from
  */
 export function handle_message(
-  message: string,
-  robot_id: string,
+  message: Record<string, unknown>,
   socket: Socket
 ) {
-  if (server_state === 'ECHOING')
-    socket.emit('message', { cmd: 'ECHO', data: message });
+  if (message.cmd === 'IDENTIFY') {
+    return identify_robot(socket, message.data as string);
+  }
 
-  event_emitter.emit(message, robot_id, socket);
+  if (server_state === 'ECHOING') {
+    return socket.write(JSON.stringify({ cmd: 'ECHO', data: message }));
+  }
+
+  const robot_id = get_robot_id(socket);
+  event_emitter.emit(message.cmd as string, message.data, robot_id, socket);
 }
 
 cli_arg_parser();
 
 // Listeners
-io.on('connection', handle_connection);
-server.listen(PORT, () => console.log('[SERVER] Running on port 3333...\n'));
+server.on('connection', handle_connection);
+server.on('error', () => null); // Protect server from misbehaving clients
+server.listen(PORT, () => console.log('[SERVER] Listening on port 3333'));
