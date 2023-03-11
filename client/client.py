@@ -3,13 +3,13 @@ import json
 import time
 
 # Global Constants
-DIRECTOR_HOST = "localhost"
-DIRECTOR_PORT = 3333
+DIRECTOR_HOST = "localhost"   # Server Hostname
+DIRECTOR_PORT = 3333          # Server Port
 
 CONNECTION_RETRY = 5          # Number of Tries before failrue
 CONNECTION_RETRY_DELAY = 5000 # Milliseconds
 STATUS = 'CONNECTING'         # System Status (CONNECTING, CONNECTED, RUNNING, FAILED)
-ROBOT_ID = 'Janet Benson'
+ROBOT_ID = 'Janet Benson'     # Robot Name
 
 # Global Variables
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # TCP + IPv4

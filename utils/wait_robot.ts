@@ -19,7 +19,6 @@ function wait_robot(robot_id: string, message: string, timeout = 0) {
 
     // Wait for the robot to respond with the expected message
     const check_robot = (data: any, id: string) => {
-      console.log(id);
       if (robot_id === id) {
         event_emitter.removeListener(message, check_robot);
         clearTimeout(timeoutId);

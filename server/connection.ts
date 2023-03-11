@@ -1,7 +1,7 @@
 import net from 'net';
 import { Socket } from '../types';
-import { presentation_lines } from './presentation';
-import { event_emitter, server_state } from './server';
+import { presentation_lines, start_presentation } from './presentation';
+import { event_emitter, server_mode, server_state, set_state } from './server';
 import { v4 as uuid } from 'uuid';
 
 export const connection_list: { socket: Socket; robot_id: string | null }[] =
@@ -33,7 +33,7 @@ export function identify_robot(socket: Socket, robot_id: string) {
   socket.write(JSON.stringify({ cmd: 'IDENTIFY', data: true }));
   console.log('[SERVER]', socket.id, 'identified as', robot_id);
 
-  if (server_state === 'ECHOING') handle_echo(socket, robot_id);
+  if (server_mode === 'ECHO') return set_state('RUNNING_PRESENTATION');
 
   return robot_id;
 }
@@ -49,17 +49,8 @@ function handle_disconnect(socket: Socket) {
   const robot_id = connection_list[index].robot_id;
   connection_list.splice(index, 1);
   console.log(`[SERVER] ${socket.id} (${robot_id}) disconnected...\n`);
-}
 
-// Echo all lines back to the robot on connect
-function handle_echo(socket: Socket, robot_id: string) {
-  console.log('[SERVER] Sending lines to', robot_id);
-
-  const lines = presentation_lines
-    .filter((entry) => entry.robot_id === robot_id)
-    .map((line) => line.message);
-
-  socket.write(JSON.stringify({ cmd: 'LINES', data: lines }));
+  if (server_mode === 'ECHO') set_state('WAITING_CONNECTIONS');
 }
 
 // Send message to all connected listeners

@@ -1,7 +1,7 @@
 import net from 'net';
 import events from 'events';
 import cli_arg_parser from './cli';
-import { SERVER_STATE } from '../types';
+import { SERVER_MODE, SERVER_STATE } from '../types';
 import { start_presentation } from './presentation';
 import handle_connection, { broadcast } from './connection';
 
@@ -10,6 +10,7 @@ const PORT = 3333;
 export const server = net.createServer();
 export const event_emitter = new events.EventEmitter();
 
+export let server_mode: keyof typeof SERVER_MODE = 'NORMAL';
 export let server_state: keyof typeof SERVER_STATE = 'WAITING_CONNECTIONS';
 
 /**
@@ -34,6 +35,10 @@ export function set_state(state: keyof typeof SERVER_STATE) {
       );
       break;
   }
+}
+
+export function set_mode(mode: keyof typeof SERVER_MODE) {
+  server_mode = mode;
 }
 
 cli_arg_parser();

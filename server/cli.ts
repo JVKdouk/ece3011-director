@@ -1,6 +1,6 @@
 import readline from 'readline';
 import { connection_list } from './connection';
-import { set_state } from './server';
+import { set_mode, set_state } from './server';
 
 /**
  * CLI Commands Parser. Any commands inputed via STDIN are read by this function
@@ -35,7 +35,10 @@ function cli_arg_parser() {
     switch (arg) {
       case '-m':
         const mode = args[i + 1];
-        if (mode === 'echo') set_state('ECHOING');
+        if (mode === 'echo') {
+          set_mode('ECHO');
+          console.log('[SERVER] Running in echo Mode');
+        }
         i += 1;
 
         continue;

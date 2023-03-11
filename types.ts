@@ -1,9 +1,13 @@
 import net from 'net';
 
+export enum SERVER_MODE {
+  NORMAL,
+  ECHO,
+}
+
 export enum SERVER_STATE {
   RUNNING_PRESENTATION,
   WAITING_CONNECTIONS,
-  ECHOING,
 }
 
 export enum CLIENT_STATE {
